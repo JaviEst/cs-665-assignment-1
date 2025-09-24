@@ -6,24 +6,31 @@
 | Course       | Fall                       |
 | Assignment # | 1                          |
 
-# Assignment Overview (TODO)
-Please add a paragraph or two overviewing the objectives of the assignment.
+# Assignment Overview
+This project implements a simple beverage machine using clean and extensible object-oriented design.
 
 # GitHub Repository Link:
 https://github.com/JaviEst/cs-665-assignment-1
 
-# Implementation Description (TODO)
+# Implementation Description
+- Flexibility: Adding a new drink requires only:
+  1) creating a new class that extends `beverages.Beverage` and overrides `brew()`,
+  2) adding a new value to `types.BeverageTypes`, and
+  3) adding a corresponding case in `machine.BeverageFactory`.
+  No other code needs to change. Removing a drink is symmetric: delete its class and its factory/enum entries.
+- Simplicity & Understandability: Responsibilities are small and clear. `Beverage` encapsulates common behavior and pricing; each concrete beverage contains only its brew specifics; `BeverageFactory` centralizes creation; `BeverageOrder` models a user order and delegates creation. Names are explicit, state is minimal, and the preparation pipeline is linear and easy to read.
+- Avoiding Duplication: Shared logic (validation of condiment units, pricing formula, and the preparation template) lives in `Beverage`. Concrete classes override only `brew()`, preventing copy/paste of common steps. The type-to-class mapping is defined once in `BeverageFactory`. Constants (base price, condiment price, limits) are centralized in `Beverage` to avoid scattering literals.
 
+# Use Beverage Machine
+To use the beverage machine and get your beverage you will first need to compile the code by running the following command:
+```bash
+mvn clean compile
+```
 
-For each assignment, please answer the following:
-
-- Explain the level of flexibility in your implementation, including how new object types can
-be easily added or removed in the future.
-- Discuss the simplicity and understandability of your implementation, ensuring that it is
-easy for others to read and maintain.
-- Describe how you have avoided duplicated code and why it is important.
-- If applicable, mention any design patterns you have used and explain why they were
-chosen.
+Once the above is successfully ran, you can order your drink by running the following command:
+```bash
+java -cp target/classes Main
+```
 
 
 # Maven Commands
