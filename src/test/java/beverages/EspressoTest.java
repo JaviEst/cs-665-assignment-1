@@ -1,14 +1,16 @@
 /*
  * Name: Javier Esteban de Celis
- * Date: 09/23/2025
+ * Date: 12/01/2025
  * File Name: EspressoTest.java
  * Description: JUnit tests for the Espresso beverage class.
- * Assignment #: 1
+ * Assignment #: 6
  * Course CS665
  */
 
 package beverages;
 
+import decorators.MilkDecorator;
+import decorators.SugarDecorator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,40 +22,34 @@ public class EspressoTest {
   }
 
   @Test
-  public void testValidNumberOfCondiments() {
-    Espresso a = new Espresso();
-
-    a.setMilkUnits(2);
-    a.setSugarUnits(1);
-
-    Assert.assertEquals(2, a.getMilkUnits());
-    Assert.assertEquals(1, a.getSugarUnits());
-  }
-
-  @Test
-  public void testInvalidNumberOfCondiments() {
-    Espresso a = new Espresso();
-
-    // Invalid number since the max units for a condiment is 3.
-    a.setMilkUnits(4);
-    a.setSugarUnits(1);
-
-    Assert.assertEquals(0, a.getMilkUnits());
-    Assert.assertEquals(1, a.getSugarUnits());
-  }
-
-  @Test
   public void testBasePriceNoCondiments() {
     Espresso a = new Espresso();
     Assert.assertEquals(Beverage.BASE_PRICE, a.getPrice(), 0.0001);
+    Assert.assertEquals(0, a.getMilkUnits());
+    Assert.assertEquals(0, a.getSugarUnits());
   }
 
   @Test
-  public void testPriceWithCondiments() {
-    Espresso a = new Espresso();
-    a.setMilkUnits(2);
-    a.setSugarUnits(1);
-    double expected = Beverage.BASE_PRICE + 3 * Beverage.CONDIMENT_UNIT_PRICE;
+  public void testPriceWithMilkDecorator() {
+    Beverage a = new Espresso();
+    a = new MilkDecorator(a);
+    a = new MilkDecorator(a);
+    
+    double expected = Beverage.BASE_PRICE + 2 * 0.5;
     Assert.assertEquals(expected, a.getPrice(), 0.0001);
+    Assert.assertEquals(2, a.getMilkUnits());
+  }
+
+  @Test
+  public void testPriceWithBothDecorators() {
+    Beverage a = new Espresso();
+    a = new MilkDecorator(a);
+    a = new MilkDecorator(a);
+    a = new SugarDecorator(a);
+    
+    double expected = Beverage.BASE_PRICE + 3 * 0.5;
+    Assert.assertEquals(expected, a.getPrice(), 0.0001);
+    Assert.assertEquals(2, a.getMilkUnits());
+    Assert.assertEquals(1, a.getSugarUnits());
   }
 }

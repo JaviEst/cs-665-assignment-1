@@ -1,16 +1,15 @@
 /*
  * Name: Javier Esteban de Celis
- * Date: 09/15/2025
+ * Date: 12/01/2025
  * File Name: GreenTea.java
  * Description: This file is responsible for implementing the green tea beverage
  *              by extending the behavior provided in the beverage abstract class.
- * Assignment #: 1
+ * Assignment #: 6
  * Course CS665
  */
 
 package beverages;
 
-import beverages.Beverage;
 
 public class GreenTea extends Beverage {
   /**
@@ -25,7 +24,7 @@ public class GreenTea extends Beverage {
    * This method is overridden from the abstract beverage class.
    */
   @Override
-  protected void brew() {
+  public void brew() {
     System.out.println("Steeping green tea leaves...");
   }
 }

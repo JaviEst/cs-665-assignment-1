@@ -1,14 +1,16 @@
 /*
  * Name: Javier Esteban de Celis
- * Date: 09/23/2025
+ * Date: 12/01/2025
  * File Name: Main.java
  * Description: Console user interface for the beverage machine.
- * Assignment #: 1
+ *              Updated for Assignment #6 to use Builder pattern.
+ * Assignment #: 6
  * Course CS665
  */
 
 import java.util.Scanner;
 import machine.BeverageOrder;
+import machine.BeverageOrderBuilder;
 import types.BeverageTypes;
 
 public class Main {
@@ -41,7 +43,11 @@ public class Main {
         int milkUnits = getCondimentUnits("milk");
         int sugarUnits = getCondimentUnits("sugar");
 
-        BeverageOrder order = new BeverageOrder(selectedBeverage, milkUnits, sugarUnits);
+        BeverageOrder order = new BeverageOrderBuilder()
+            .beverageType(selectedBeverage)
+            .withMilk(milkUnits)
+            .withSugar(sugarUnits)
+            .build();
         
         System.out.println();
         order.printOrderSummary();

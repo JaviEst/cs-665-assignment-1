@@ -1,11 +1,11 @@
 /*
  * Name: Javier Esteban de Celis
- * Date: 09/15/2025
+ * Date: 12/01/2025
  * File Name: BeverageFactory.java
  * Description: This file is responsible for implementing the beverage machine / factory.
  *              The beverage factory serves a new beverage based on the type and condiments
  *              provided by the user through the beverage order.
- * Assignment #: 1
+ * Assignment #: 6
  * Course CS665
  */
 
@@ -18,45 +18,50 @@ import beverages.Espresso;
 import beverages.GreenTea;
 import beverages.LatteMacchiato;
 import beverages.YellowTea;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 import types.BeverageTypes;
 
-public class BeverageFactory {
+public class BeverageFactory {  
+  private static final Map<BeverageTypes, Supplier<Beverage>> beverageRegistry = new HashMap<>();
+  
+  static {
+    beverageRegistry.put(BeverageTypes.ESPRESSO, Espresso::new);
+    beverageRegistry.put(BeverageTypes.AMERICANO, Americano::new);
+    beverageRegistry.put(BeverageTypes.LATTE_MACCHIATO, LatteMacchiato::new);
+    beverageRegistry.put(BeverageTypes.BLACK_TEA, BlackTea::new);
+    beverageRegistry.put(BeverageTypes.GREEN_TEA, GreenTea::new);
+    beverageRegistry.put(BeverageTypes.YELLOW_TEA, YellowTea::new);
+  }
+
   /**
-   * Given a beverage type and condiments create and prepare the specified beverage.
+   * Creates a base beverage without condiments.
+   * Uses the registry pattern to eliminate switch statements and improve OCP compliance.
    *
-   * @param type the beverage's type (Espresso, Americano, Black Tea, ...)
-   * @param milk the number of milk units to add to the beverage when preparing it
-   * @param sugar the number of sugar units to add to the beverage when preparing it
+   * @param type the beverage's type
+   * @return a new beverage instance, or null if type is not registered
    */
-  public static Beverage createBeverage(BeverageTypes type, int milk, int sugar) {
-    Beverage beverage = null;
-    switch (type) {
-      case ESPRESSO:
-        beverage = new Espresso();
-        break;
-      case AMERICANO:
-        beverage = new Americano();
-        break;
-      case LATTE_MACCHIATO:
-        beverage = new LatteMacchiato();
-        break;
-      case BLACK_TEA:
-        beverage = new BlackTea();
-        break;
-      case GREEN_TEA:
-        beverage = new GreenTea();
-        break;
-      case YELLOW_TEA:
-        beverage = new YellowTea();
-        break;
-      default:
-        System.out.println("Sorry, we do not have the type of beverage you ordered.");
+  public static Beverage createBeverage(BeverageTypes type) {
+    Supplier<Beverage> beverageSupplier = beverageRegistry.get(type);
+    
+    if (beverageSupplier == null) {
+      System.out.println("Sorry, we do not have the type of beverage you ordered.");
+      return null;
     }
-    if (beverage != null) {
-      beverage.setMilkUnits(milk);
-      beverage.setSugarUnits(sugar);
-      beverage.prepare();
-    }
-    return beverage;
+    
+    return beverageSupplier.get();
+  }
+  
+  /**
+   * Register a new beverage type dynamically.
+   * This allows for runtime extension of available beverages.
+   *
+   * @param type the beverage type to register
+   * @param supplier the supplier that creates instances of this beverage
+   */
+  public static void registerBeverage(BeverageTypes type, Supplier<Beverage> supplier) {
+    beverageRegistry.put(type, supplier);
   }
 }
+

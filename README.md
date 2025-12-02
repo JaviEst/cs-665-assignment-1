@@ -2,17 +2,266 @@
 | CS-665       | Software Design & Patterns |
 |--------------|----------------------------|
 | Name         | Javier Esteban de Celis    |
-| Date         | 09/05/2025                 |
-| Course       | Fall                       |
-| Assignment # | 1                          |
+| Date         | 09/05/2025 | 12/01/2025    |
+| Course       | CS665                      |
+| Assignment # | 1 and 6                    |
 
 # Assignment Overview
 This project implements a simple beverage machine using clean and extensible object-oriented design.
 
+**Assignment #6 Update**: This codebase has been refactored to incorporate three design patterns that significantly improve code quality, maintainability, and extensibility. All legacy code has been removed in favor of the new pattern-based implementations.
+
+## Quick Summary of Changes
+
+**Three Design Patterns Implemented:**
+1. **Decorator Pattern** - Condiments (milk, sugar) are now decorators that wrap beverages
+2. **Builder Pattern** - Orders are created using a fluent builder interface  
+3. **Registry Factory Pattern** - Beverage creation uses a map-based registry instead of switch statements
+
+**How to Use the New API:**
+```java
+BeverageOrder order = new BeverageOrderBuilder()
+    .beverageType(BeverageTypes.ESPRESSO)
+    .withMilk(2)
+    .withSugar(1)
+    .build();
+```
+
+
 # GitHub Repository Link:
 https://github.com/JaviEst/cs-665-assignment-1
 
-# Implementation Description
+
+# Assignment #6: Code Improvements and Design Patterns
+
+## Three Areas of Improvement Identified and Implemented
+
+### 1. **Decorator Pattern for Condiments**
+
+#### Problem Identified:
+The original implementation stored condiments (milk and sugar) as primitive properties within the `Beverage` class. This approach had several limitations:
+- **Lack of Extensibility**: Adding new condiment types (e.g., whipped cream, vanilla syrup) would require modifying the base `Beverage` class, violating the Open/Closed Principle
+- **Inflexible Pricing**: All condiments had the same price, making it difficult to have different pricing for different condiments
+- **Tight Coupling**: The condiment logic was tightly coupled with the base beverage class
+
+#### Solution Implemented:
+Implemented the **Decorator Pattern** to dynamically add condiments to beverages:
+- Created an abstract `BeverageDecorator` class that wraps a `Beverage` object
+- Implemented concrete decorators: `MilkDecorator` and `SugarDecorator`
+- Each decorator adds its functionality (price, description) without modifying the base beverage
+
+#### Benefits:
+- **Open/Closed Principle**: New condiments can be added by creating new decorator classes without modifying existing code
+- **Single Responsibility**: Each decorator is responsible for one condiment type
+- **Flexible Composition**: Condiments can be combined in any order and quantity
+- **Independent Pricing**: Each condiment can have its own price
+
+#### Code Changes:
+- **New Files**:
+  - `decorators/BeverageDecorator.java` - Abstract decorator base class
+  - `decorators/MilkDecorator.java` - Adds milk concrete decorator
+  - `decorators/SugarDecorator.java` - Adds sugar concrete decorator
+
+#### Example Usage:
+```java
+Beverage beverage = new Espresso();
+
+beverage = new MilkDecorator(beverage);
+beverage = new MilkDecorator(beverage);
+beverage = new SugarDecorator(beverage);
+
+beverage.prepare();
+```
+
+---
+
+### 2. **Builder Pattern for Order Construction**
+
+#### Problem Identified:
+The original `BeverageOrder` constructor required all parameters at once:
+```java
+new BeverageOrder(BeverageTypes.ESPRESSO, 2, 1);
+```
+
+This approach had issues:
+- **Poor Readability**: It's unclear what the numbers `2` and `1` represent without reading documentation
+- **Parameter Confusion**: Easy to accidentally swap milk and sugar values
+- **Limited Flexibility**: Difficult to add optional parameters (e.g., temperature preference, size)
+- **Validation Scattered**: Parameter validation occurred in multiple places
+
+#### Solution Implemented:
+Implemented the **Builder Pattern** to construct beverage orders:
+- Created `BeverageOrderBuilder` class with a fluent interface
+- Each method clearly indicates what parameter is being set
+- Validation is centralized in the builder
+- Supports both decorated (new) and legacy (old) beverage creation
+
+#### Benefits:
+- **Improved Readability**: Self-documenting code through method names
+- **Flexible Construction**: Optional parameters can be omitted
+- **Centralized Validation**: All validation logic in one place
+- **Type Safety**: Method names prevent parameter confusion
+- **Backward Compatibility**: Legacy constructor still available
+
+#### Code Changes:
+- **New Files**:
+  - `machine/BeverageOrderBuilder.java` - Builder for creating orders
+- **Modified Files**:
+  - `machine/BeverageOrder.java` - Added constructor accepting pre-built `Beverage`
+
+#### Example Usage:
+```java
+BeverageOrder order = new BeverageOrderBuilder()
+    .beverageType(BeverageTypes.ESPRESSO)
+    .withMilk(2)
+    .withSugar(1)
+    .build();
+```
+
+---
+
+### 3. **Registry-Based Factory Pattern**
+
+#### Problem Identified:
+The original `BeverageFactory` used a large switch statement:
+```java
+switch (type) {
+    case ESPRESSO:
+        beverage = new Espresso();
+        break;
+    case AMERICANO:
+        beverage = new Americano();
+        break;
+    // ... more cases
+}
+```
+
+Issues with this approach:
+- **Violates Open/Closed Principle**: Adding new beverages requires modifying the factory class
+- **Code Duplication**: Each case follows the same pattern
+- **Maintenance Burden**: Switch statement grows with each new beverage type
+- **No Runtime Extensibility**: Cannot add beverages dynamically
+
+#### Solution Implemented:
+Refactored to a **Registry-Based Factory Pattern** using a `HashMap` and Java 8 method references:
+- Created a static registry mapping `BeverageTypes` to `Supplier<Beverage>`
+- Used method references (e.g., `Espresso::new`) for clean registration
+- Eliminated the switch statement entirely
+- Added ability to register beverages at runtime
+
+#### Benefits:
+- **Open/Closed Principle**: New beverages registered without modifying factory code
+- **Cleaner Code**: No repetitive switch cases
+- **Runtime Extensibility**: `registerBeverage()` method allows dynamic registration
+- **Better Testability**: Easy to mock or substitute beverage suppliers
+- **Reduced Complexity**: Lookup is O(1) instead of sequential case checking
+
+#### Code Changes:
+- **Modified Files**:
+  - `machine/BeverageFactory.java` - Replaced switch with registry pattern
+
+#### Example - Adding a New Beverage:
+```java
+BeverageFactory.registerBeverage(BeverageTypes.CAPPUCCINO, Cappuccino::new);
+```
+
+---
+
+## UML Class Diagrams
+
+### Decorator Pattern - Class Diagram
+```
+┌─────────────────────┐
+│     Beverage        │ (Abstract)
+├─────────────────────┤
+│ - name: String      │
+│ - milkUnits: int    │
+│ - sugarUnits: int   │
+├─────────────────────┤
+│ + prepare(): void   │
+│ + getPrice(): double│
+│ + getName(): String │
+│ # brew(): void      │
+└──────────▲──────────┘
+           │
+           │ extends
+           │
+    ┌──────┴──────┬──────────────────────────────┐
+    │             │                              │
+┌───┴────────┐ ┌──┴────────────────┐   ┌─────────┴────────┐
+│  Espresso  │ │ BeverageDecorator │   │   Americano      │
+│            │ │    (Abstract)     │   │   (and others)   │
+└────────────┘ │─────────────────  │   └──────────────────┘
+               │- wrappedBeverage  │
+               │     : Beverage    │
+               └─────────▲─────────┘
+                         │
+                         │ extends
+                    ┌────┴────┐
+                    │         │
+          ┌─────────┴───┐  ┌──┴───────────┐
+          │MilkDecorator│  │SugarDecorator│
+          └─────────────┘  └──────────────┘
+```
+
+### Builder Pattern - Class Diagram
+```
+┌──────────────────────────┐
+│  BeverageOrderBuilder    │
+├──────────────────────────┤
+│ - beverageType           │
+│ - milkUnits: int         │
+│ - sugarUnits: int        │
+├──────────────────────────┤
+│ + beverageType(type)     │
+│ + withMilk(units)        │
+│ + withSugar(units)       │
+│ + build(): BeverageOrder │
+└────────┬─────────────────┘
+         │ creates
+         ▼
+┌──────────────────────────┐
+│    BeverageOrder         │
+├──────────────────────────┤
+│ - beverage: Beverage     │
+├──────────────────────────┤
+│ + getCost(): double      │
+│ + printOrderSummary()    │
+└──────────────────────────┘
+```
+
+### Factory Pattern - Class Diagram
+```
+┌───────────────────────────────────────────────┐
+│         BeverageFactory                       │
+├───────────────────────────────────────────────┤
+│ - beverageRegistry:                           │
+│   Map<BeverageTypes, Supplier<Beverage>>      │
+├───────────────────────────────────────────────┤
+│ + createBaseBeverage(type): Beverage          │
+│ + createBeverage(type, milk, sugar): Beverage │
+│ + registerBeverage(type, supplier): void      │
+└──────────────┬────────────────────────────────┘
+               │ creates
+               ▼
+         ┌─────────────┐
+         │  Beverage   │
+         └─────────────┘
+```
+
+---
+
+## Design Pattern Summary
+
+| Pattern | Purpose | Key Benefit |
+|---------|---------|-------------|
+| **Decorator** | Add condiments dynamically | Flexibility in composing beverages with condiments |
+| **Builder** | Construct complex orders | Improved readability and maintainable parameter passing |
+| **Registry Factory** | Create beverages from types | Extensibility without modifying factory code |
+
+---
+
+# Implementation Description (Original)
 - Flexibility: Adding a new drink requires only:
   1) creating a new class that extends `beverages.Beverage` and overrides `brew()`,
   2) adding a new value to `types.BeverageTypes`, and
