@@ -1,16 +1,15 @@
 /*
  * Name: Javier Esteban de Celis
- * Date: 09/15/2025
+ * Date: 12/01/2025
  * File Name: LatteMacchiato.java
  * Description: This file is responsible for implementing the latte macchiato coffee beverage
  *              by extending the behavior provided in the beverage abstract class.
- * Assignment #: 1
+ * Assignment #: 6
  * Course CS665
  */
 
 package beverages;
 
-import beverages.Beverage;
 
 public class LatteMacchiato extends Beverage {
   /**
@@ -21,11 +20,11 @@ public class LatteMacchiato extends Beverage {
   }
 
   /**
-   * Brew a latte macchiato coffee.
+   * Brew a Latte Macchiato coffee.
    * This method is overridden from the abstract beverage class.
    */
   @Override
-  protected void brew() {
-    System.out.println("Brewing a latte macchiato with espresso and steamed milk...");
+  public void brew() {
+    System.out.println("Brewing a Latte Macchiato with steamed milk and espresso...");
   }
 }
